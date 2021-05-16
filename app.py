@@ -10,7 +10,7 @@ db = SQLAlchemy(app)
 
 
 class Gears(db.Model):
-    gear_id = db.Column(db.Integer(), primary_key=True)
+    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     description = db.Column(db.String(50), unique=False, index=True)
     purchase_date = db.Column(db.Date, default=datetime.now())
