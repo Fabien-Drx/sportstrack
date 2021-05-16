@@ -3,8 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://gearsports.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gearsports.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
@@ -17,9 +17,9 @@ class Gears(db.Model):
     offset = db.Column(db.Integer(), nullable=False, unique=False, default=0)
 
 
-class Workout(db.Model):
-    workout_id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    sport_id = db.Column(db.String(50))  # A modifier par relation
+class Workouts(db.Model):
+    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+    sport_id = db.Column(db.Integer, db.ForeignKey('sports.id'))  # A modifier par relation
     workout_date = db.Column(db.Date, default=datetime.now())
     distance = db.Column(db.Float(), default=0)
     avg_pace = db.Column(db.Float(), default=0)
@@ -27,8 +27,9 @@ class Workout(db.Model):
 
 
 class Sports(db.Model):
-    sport_id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     sport = db.Column(db.String(50), index=True, nullable=False, unique=True)
+    workout = db.relationship('Workouts', backref='sports', lazy='dynamic')
 
 
 @app.route('/')
