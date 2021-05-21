@@ -9,27 +9,34 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
-class Gears(db.Model):
+class Gear(db.Model):
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     description = db.Column(db.String(50), unique=False, index=True)
     purchase_date = db.Column(db.Date, default=datetime.now())
     offset = db.Column(db.Integer(), nullable=False, unique=False, default=0)
+    tracks = db.relationship('Track', backref='track', lazy='dynamic')
 
 
-class Workouts(db.Model):
+class Workout(db.Model):
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    sport_id = db.Column(db.Integer, db.ForeignKey('sports.id'))  # A modifier par relation
+    sport_id = db.Column(db.Integer, db.ForeignKey('sport.id'))
     workout_date = db.Column(db.Date, default=datetime.now())
     distance = db.Column(db.Float(), default=0)
     avg_pace = db.Column(db.Float(), default=0)
     avg_fc = db.Column(db.Float(), default=0)
+    tracks = db.relationship('Track', backref='track', lazy='dynamic')
 
 
-class Sports(db.Model):
+class Sport(db.Model):
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     sport = db.Column(db.String(50), index=True, nullable=False, unique=True)
-    workout = db.relationship('Workouts', backref='sports', lazy='dynamic')
+    workouts = db.relationship('Workout', backref='sport', lazy='dynamic')
+
+
+class Track(db.Model):
+    workout_id = db.Column(db.Integer, db.ForeignKey('workout.id'), primary_key=True)
+    gear_id = db.Column(db.Integer, db.ForeignKey('gear.id'), primary_key=True)
 
 
 @app.route('/')
