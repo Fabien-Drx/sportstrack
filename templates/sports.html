@@ -13,16 +13,18 @@
             <li class="list-group-item">{{ sport.sport }}</li>
         {%  endfor %}
     </ul>
-    </BR>
+
+    <br>
+
     <H1 class="display-6">Add a sport :</H1>
-    <form>
-    {{ create_sport_form.hidden_tag() }}
-      <div class="mb-3">
-        <label class="form-label">Sport name</label>
-        <input type="textearea" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-        <div id="emailHelp" class="form-text">Sport's name must be unique</div>
-      </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+
+    <form action="" method="POST" novalidate>
+        {{ create_sport_form.hidden_tag() }}
+        <div class="mb-3">
+            {{ create_sport_form.sport.label }} <br>
+            {{ create_sport_form.sport(size=50) }}
+        </div>
+            {{ create_sport_form.submit() }}
+    </form>
 
 {% endblock %}
