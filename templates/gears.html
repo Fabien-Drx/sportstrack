@@ -1,0 +1,22 @@
+{%  extends "base.html" %}
+
+{% block content %}
+
+    <H1 class="display-6">Gears :</H1>
+
+    {% if gears_list|length == 0 %}
+        <p>Sorry, there is no gears to display yet !</p>
+    {% endif %}
+    <ul class="list-group list-group-flush">
+        {% for gear in gears_list %}
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div class="ms-2 me-auto">
+                    <div class="fw-bold">{{ gear.name }}</div>
+                        {{ gear.description }}
+                    </div>
+                <span class="badge bg-primary rounded-pill">{{ gear.purchase_date }}</span>
+            </li>
+        {%  endfor %}
+    </ul>
+
+{% endblock %}
