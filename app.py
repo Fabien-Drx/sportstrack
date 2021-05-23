@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import exc
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
@@ -60,10 +61,15 @@ def sports():
 
     if request.method == 'POST' and create_sport_form.validate():
         new_sport = Sport(sport=create_sport_form.sport.data)
-        db.session.add(new_sport)
-        db.session.commit()
+        try:
+            db.session.add(new_sport)
+            db.session.commit()
+        except exc.IntegrityError as e:
+            db.session.rollback()
+            flash('A sport with the same name already exists', 'alert-danger')
     else:
-        flash(create_sport_form.errors)
+        if create_sport_form.errors:
+            flash(create_sport_form.errors)
 
     sports_list = Sport.query.all()
     return render_template('sports.html', sports_list=sports_list, page_sports_active="active", create_sport_form=create_sport_form)
