@@ -19,4 +19,24 @@
         {%  endfor %}
     </ul>
 
+    <H1 class="display-6">Add an equipment :</H1>
+
+    <form action="" method="POST" novalidate>
+        {{ create_gear_form.hidden_tag() }}
+        <div class="mb-3">
+            {{ create_gear_form.name.label }}
+            <br>
+            {{ create_gear_form.name(size=50) }}
+            <br>
+            {{ create_gear_form.description.label }}
+            <br>
+            {{ create_gear_form.description(size=100) }}
+            <br>
+            {{ create_gear_form.purchase_date.label }}
+            <br>
+            {{ create_gear_form.purchase_date() }}
+        </div>
+            {{ create_gear_form.submit() }}
+    </form>
+
 {% endblock %}

@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
+from wtforms import StringField, SubmitField, DateField
 from wtforms.validators import DataRequired
 from datetime import datetime
 
@@ -17,6 +17,13 @@ db = SQLAlchemy(app)
 class SportForm(FlaskForm):
     sport = StringField(label='Sport :', validators=[DataRequired()])
     submit = SubmitField('Add Sport')
+
+
+class GearForm(FlaskForm):
+    name = StringField(label="Gear's name :", validators=[DataRequired()])
+    description = StringField(label="Description :", validators=[DataRequired()])
+    purchase_date = DateField(label="Purchase Date", validators=[DataRequired()])
+    submit = SubmitField('Add Gear')
 
 
 class Gear(db.Model):
@@ -64,7 +71,7 @@ def sports():
         try:
             db.session.add(new_sport)
             db.session.commit()
-        except exc.IntegrityError as e:
+        except exc.IntegrityError:
             db.session.rollback()
             flash('A sport with the same name already exists', 'alert-danger')
     else:
@@ -72,13 +79,34 @@ def sports():
             flash(create_sport_form.errors)
 
     sports_list = Sport.query.all()
-    return render_template('sports.html', sports_list=sports_list, page_sports_active="active", create_sport_form=create_sport_form)
+    return render_template('sports.html',
+                           sports_list=sports_list,
+                           page_sports_active="active",
+                           create_sport_form=create_sport_form)
 
 
-@app.route('/gears')
+@app.route('/gears', methods=['GET', 'POST'])
 def gears():
+
+    create_gear_form = GearForm()
+
+    if request.method == 'POST' and create_gear_form.validate():
+        new_gear = Gear(name=create_gear_form.name.data,
+                        description=create_gear_form.description.data,
+                        purchase_date=create_gear_form.purchase_date.data)
+
+        try:
+            db.session.add(new_gear)
+            db.session.commit()
+        except exc.IntegrityError:
+            db.session.rollback()
+            flash('A gear with the same name already exists', 'alert-danger')
+
     gears_list = Gear.query.all()
-    return render_template('gears.html', gears_list=gears_list, page_gears_active="active")
+    return render_template('gears.html',
+                           gears_list=gears_list,
+                           page_gears_active="active",
+                           create_gear_form=create_gear_form)
 
 
 if __name__ == '__main__':
