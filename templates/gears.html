@@ -1,5 +1,5 @@
 {%  extends "base.html" %}
-
+{% import "bootstrap/wtf.html" as wtf %}
 {% block content %}
 
     <H1 class="display-6">Gears :</H1>
@@ -38,5 +38,17 @@
         </div>
             {{ create_gear_form.submit() }}
     </form>
+
+    <hr>
+    <form action="" method="post" class="form" role="form">
+  {{ create_gear_form.csrf_token() }}
+ <d1>
+  {{ wtf.form_field(create_gear_form.name, class='form-control', placeholder='Model, name, ...') }}
+  {{ wtf.form_field(create_gear_form.description, class='form-control', placeholder='A brief description ...') }}
+  {{ wtf.form_field(create_gear_form.purchase_date, class='form-control') }}
+ </d1>
+ <p><input type=submit class='btn btn-warning btn-block'>
+</form>
+
 
 {% endblock %}
