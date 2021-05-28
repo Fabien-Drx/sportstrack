@@ -3,8 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, DateField
+from wtforms.fields.html5 import DateField as html5DateField
 from wtforms.validators import DataRequired
 from datetime import datetime
+from flask_bootstrap import Bootstrap
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gearsports.db'
@@ -12,6 +14,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'MySupeRsEcretkeY'
 
 db = SQLAlchemy(app)
+
+Bootstrap(app)
 
 
 class SportForm(FlaskForm):
@@ -22,7 +26,7 @@ class SportForm(FlaskForm):
 class GearForm(FlaskForm):
     name = StringField(label="Gear's name :", validators=[DataRequired()])
     description = StringField(label="Description :", validators=[DataRequired()])
-    purchase_date = DateField(label="Purchase Date", validators=[DataRequired()])
+    purchase_date = html5DateField(label="Purchase Date", validators=[DataRequired()])
     submit = SubmitField('Add Gear')
 
 
@@ -65,6 +69,7 @@ def index():
 def sports():
 
     create_sport_form = SportForm()
+    create_sport_form.sport(class_="text_blog")
 
     if request.method == 'POST' and create_sport_form.validate():
         new_sport = Sport(sport=create_sport_form.sport.data)
