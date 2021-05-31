@@ -8,6 +8,7 @@
         <p>Sorry, there is no sports to display yet !</p>
     {% endif %}
 
+    <div class="shadow-sm p-3 mb-5 bg-body rounded">
     <ul class="list-group list-group-flush">
         {% for sport in sports_list %}
             <li class="list-group-item d-flex justify-content-between align-items-start">
@@ -16,24 +17,28 @@
                     <div class="fw-bold">{{ sport.sport }}</div>
                 </div>
                     <form method="POST">
-                        <input type=submit class='btn btn-outline-primary btn-sm' name="{{ sport.id }}" value="Edit">
-                        &nbsp;
-                        <input type=submit class='btn btn-outline-primary btn-sm' name="{{ sport.id }}", value="Delete">
+                        <div class="d-inline">
+                            <input type=submit class='btn btn-outline-primary btn-sm' name="{{ sport.id }}" value="Edit">
+                        </div>
+                        <div class="d-inline">
+                            <input type=submit class='btn btn-outline-primary btn-sm' name="{{ sport.id }}", value="Delete">
+                        </div>
                     </form>
             </li>
         {%  endfor %}
     </ul>
-
+    </div>
     <br>
 
     <H1 class="display-6">Add a sport :</H1>
-
-    <form action="" method="post" class="form" role="form">
+    <div class="shadow-sm p-3 mb-5 bg-body rounded">
+        <form action="" method="post" class="form" role="form">
             {{ create_sport_form.csrf_token() }}
-        <d1>
-            {{ wtf.form_field(create_sport_form.sport, class='form-control', placeholder='Sport ...') }}
-        </d1>
-        <p><input type=submit class='btn btn-primary btn-sm btn-block'>
-    </form>
+            <d1>
+                {{ wtf.form_field(create_sport_form.sport, class='form-control', placeholder='Sport ...') }}
+            </d1>
+            <input type=submit class='btn btn-primary btn-sm btn-block'>
+        </form>
+    </div>
 
 {% endblock %}
