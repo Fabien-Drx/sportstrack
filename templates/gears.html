@@ -13,7 +13,7 @@
                 <div class="ms-2 me-auto">
                     <div class="fw-bold">{{ gear.name }}</div>
                         {{ gear.description }}
-                    </div>
+                </div>
                 <span class="badge bg-primary rounded-pill">{{ gear.purchase_date }}</span>
             </li>
         {%  endfor %}
@@ -30,7 +30,7 @@
             {{ wtf.form_field(create_gear_form.description, class='form-control', placeholder='A brief description ...') }}
             {{ wtf.form_field(create_gear_form.purchase_date, class='form-control') }}
         </d1>
-        <p><input type=submit class='btn btn-warning btn-block'>
+        <p><input type=submit class='btn btn-primary btn-sm btn-block'>
     </form>
 
 
