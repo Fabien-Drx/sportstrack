@@ -1,5 +1,5 @@
 {%  extends "base.html" %}
-
+{% import "bootstrap/wtf.html" as wtf %}
 {% block content %}
 
     <H1 class="display-6">Sports list :</H1>
@@ -10,7 +10,17 @@
 
     <ul class="list-group list-group-flush">
         {% for sport in sports_list %}
-            <li class="list-group-item">{{ sport.sport }}</li>
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+
+                <div class="ms-2 me-auto">
+                    <div class="fw-bold">{{ sport.sport }}</div>
+                </div>
+                    <form method="POST">
+                        <input type=submit class='btn btn-outline-primary btn-sm' name="{{ sport.id }}" value="Edit">
+                        &nbsp;
+                        <input type=submit class='btn btn-outline-primary btn-sm' name="{{ sport.id }}", value="Delete">
+                    </form>
+            </li>
         {%  endfor %}
     </ul>
 
@@ -18,13 +28,12 @@
 
     <H1 class="display-6">Add a sport :</H1>
 
-    <form action="" method="POST" novalidate>
-        {{ create_sport_form.hidden_tag() }}
-        <div class="mb-3">
-            {{ create_sport_form.sport.label }} <br>
-            {{ create_sport_form.sport(size=50) }}
-        </div>
-            {{ create_sport_form.submit() }}
+    <form action="" method="post" class="form" role="form">
+            {{ create_sport_form.csrf_token() }}
+        <d1>
+            {{ wtf.form_field(create_sport_form.sport, class='form-control', placeholder='Sport ...') }}
+        </d1>
+        <p><input type=submit class='btn btn-primary btn-sm btn-block'>
     </form>
 
 {% endblock %}
