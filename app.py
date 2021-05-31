@@ -5,8 +5,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, DateField
 from wtforms.fields.html5 import DateField as html5DateField
 from wtforms.validators import DataRequired
-from datetime import datetime
 from flask_bootstrap import Bootstrap
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gearsports.db'
@@ -16,18 +16,6 @@ app.config['SECRET_KEY'] = 'MySupeRsEcretkeY'
 db = SQLAlchemy(app)
 
 Bootstrap(app)
-
-
-class SportForm(FlaskForm):
-    sport = StringField(label='Sport :', validators=[DataRequired()])
-    submit = SubmitField('Add Sport')
-
-
-class GearForm(FlaskForm):
-    name = StringField(label="Gear's name :", validators=[DataRequired()])
-    description = StringField(label="Description :", validators=[DataRequired()])
-    purchase_date = html5DateField(label="Purchase Date", validators=[DataRequired()])
-    submit = SubmitField('Add Gear')
 
 
 class Gear(db.Model):
@@ -60,6 +48,19 @@ class Track(db.Model):
     gear_id = db.Column(db.Integer, db.ForeignKey('gear.id'), primary_key=True)
 
 
+
+class SportForm(FlaskForm):
+    sport = StringField(label='Sport :', validators=[DataRequired()])
+    submit = SubmitField('Add Sport')
+
+
+class GearForm(FlaskForm):
+    name = StringField(label="Gear's name :", validators=[DataRequired()])
+    description = StringField(label="Description :", validators=[DataRequired()])
+    purchase_date = html5DateField(label="Purchase Date", validators=[DataRequired()])
+    submit = SubmitField('Add Gear')
+
+
 @app.route('/')
 def index():
     return render_template("index.html", page_home_active="active")
@@ -71,17 +72,20 @@ def sports():
     create_sport_form = SportForm()
     create_sport_form.sport(class_="text_blog")
 
-    if request.method == 'POST' and create_sport_form.validate():
-        new_sport = Sport(sport=create_sport_form.sport.data)
-        try:
-            db.session.add(new_sport)
-            db.session.commit()
-        except exc.IntegrityError:
-            db.session.rollback()
-            flash('A sport with the same name already exists', 'alert-danger')
-    else:
-        if create_sport_form.errors:
-            flash(create_sport_form.errors)
+    if request.method == 'POST':
+        if create_sport_form.validate():
+            new_sport = Sport(sport=create_sport_form.sport.data)
+            try:
+                db.session.add(new_sport)
+                db.session.commit()
+            except exc.IntegrityError:
+                db.session.rollback()
+                flash('A sport with the same name already exists', 'alert-danger')
+        else:
+            [(name, action)] = request.form.items()
+            if action == "Delete":
+                db.session.delete(Sport.query.get(name))
+                db.session.commit()
 
     sports_list = Sport.query.all()
     return render_template('sports.html',
