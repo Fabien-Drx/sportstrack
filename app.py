@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, flash
+from flask import Flask, render_template, request, url_for, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
 from flask_wtf import FlaskForm
@@ -66,32 +66,44 @@ def index():
     return render_template("index.html", page_home_active="active")
 
 
-@app.route('/sports', methods=['GET', 'POST'])
-def sports():
+@app.route('/sports/<action>/<int:id>', methods=['GET', 'POST'])
+@app.route('/sports/', methods=['GET', 'POST'])
+def sports(action=None, id=-1):
 
     create_sport_form = SportForm()
     create_sport_form.sport(class_="text_blog")
 
-    if request.method == 'POST':
-        if create_sport_form.validate():
+    if request.method == 'POST' and create_sport_form.validate():
+        if action == 'add':
             new_sport = Sport(sport=create_sport_form.sport.data)
             try:
                 db.session.add(new_sport)
                 db.session.commit()
+                action = None
             except exc.IntegrityError:
                 db.session.rollback()
                 flash('A sport with the same name already exists', 'alert-danger')
-        else:
-            [(name, action)] = request.form.items()
-            if action == "Delete":
-                db.session.delete(Sport.query.get(name))
+        elif action == 'edit':
+            edit_sport = Sport.query.get(id)
+            edit_sport.sport = create_sport_form.sport.data
+            try:
                 db.session.commit()
+                action = None
+            except exc.IntegrityError:
+                db.session.rollback()
+                flash('A sport with the same name already exists', 'alert-danger')
+
+    if action == 'add':
+        create_sport_form.sport.data = ''
+    elif action == 'edit':
+        create_sport_form.sport.data = Sport.query.get(id).sport
 
     sports_list = Sport.query.all()
     return render_template('sports.html',
                            sports_list=sports_list,
                            page_sports_active="active",
-                           create_sport_form=create_sport_form)
+                           create_sport_form=create_sport_form,
+                           action=action)
 
 
 @app.route('/gears', methods=['GET', 'POST'])
@@ -117,6 +129,42 @@ def gears():
                            page_gears_active="active",
                            create_gear_form=create_gear_form)
 
+
+@app.route('/<cat>/<int:id>/delete', methods=['GET', 'POST'])
+def delete(cat, id):
+    if cat == 'sports':
+        to_delete = Sport.query.get(id)
+    elif cat == 'gears':
+        to_delete = Gear.query.get(id)
+    elif cat == 'workouts':
+        to_delete = Workout.query.get(id)
+
+    db.session.delete(to_delete)
+    db.session.commit()
+    flash('Successfully deleted !', 'alert-success')
+    return redirect(url_for(cat))
+
+@app.route('/<cat>/<int:id>/edit', methods=['GET', 'POST'])
+def edit(cat, id):
+    if cat == 'sports':
+        obj_to_upd = Sport.query.get(id)
+        form = SportForm()
+        form.sport.data = obj_to_upd.sport
+    elif cat == 'gears':
+        obj_to_upd = Gear.query.get(id)
+        form = GearForm(obj_to_upd)
+    elif cat == 'workouts':
+        pass
+    else:
+        pass
+
+    if request.method == 'POST' and form.validate():
+        obj_to_upd.sport = form.sport.data
+        db.session.commit()
+        return redirect(url_for(cat))
+
+
+    return render_template('edit.html', form=form)
 
 if __name__ == '__main__':
     app.run()

@@ -16,29 +16,34 @@
                 <div class="ms-2 me-auto">
                     <div class="fw-bold">{{ sport.sport }}</div>
                 </div>
-                    <form method="POST">
-                        <div class="d-inline">
-                            <input type=submit class='btn btn-outline-primary btn-sm' name="{{ sport.id }}" value="Edit">
-                        </div>
-                        <div class="d-inline">
-                            <input type=submit class='btn btn-outline-primary btn-sm' name="{{ sport.id }}", value="Delete">
-                        </div>
-                    </form>
+                <div class="d-inline">
+                  <a href="{{ url_for('sports', action="edit",id=sport.id) }}" ><button type="button" class="btn btn-outline-info">Edit</button></a>
+                </div>
+                <div class="d-inline">
+                  <a href="{{ url_for('delete', cat="sports",id=sport.id) }}" ><button type="button" class="btn btn-outline-info">Delete</button></a>
+                </div>
             </li>
+
         {%  endfor %}
     </ul>
-    </div>
-    <br>
 
-    <H1 class="display-6">Add a sport :</H1>
-    <div class="shadow-sm p-3 mb-5 bg-body rounded">
-        <form action="" method="post" class="form" role="form">
-            {{ create_sport_form.csrf_token() }}
-            <d1>
-                {{ wtf.form_field(create_sport_form.sport, class='form-control', placeholder='Sport ...') }}
-            </d1>
-            <input type=submit class='btn btn-primary btn-sm btn-block'>
-        </form>
     </div>
+
+    {% if action is none %}
+        <a href="{{ url_for('sports', action="add",id=0) }}" ><button type="button" class="btn btn-primary">Add</button></a>
+    {% endif %}
+
+    {% if action is not none %}
+        <H1 class="display-6">{{ action | capitalize }} a sport :</H1>
+        <div class="shadow-sm p-3 mb-5 bg-body rounded">
+            <form action="" method="post" class="form" role="form">
+                {{ create_sport_form.csrf_token() }}
+                <d1>
+                {{ wtf.form_field(create_sport_form.sport, class='form-control', placeholder='Sport ...') }}
+                </d1>
+                <input type=submit class='btn btn-primary btn-sm btn-block'>
+            </form>
+        </div>
+    {% endif %}
 
 {% endblock %}
