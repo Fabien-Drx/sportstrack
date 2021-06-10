@@ -106,28 +106,53 @@ def sports(action=None, id=-1):
                            action=action)
 
 
+@app.route('/gears/<action>/<int:id>', methods=['GET', 'POST'])
 @app.route('/gears', methods=['GET', 'POST'])
-def gears():
+def gears(action=None, id=-1):
 
     create_gear_form = GearForm()
 
     if request.method == 'POST' and create_gear_form.validate():
-        new_gear = Gear(name=create_gear_form.name.data,
-                        description=create_gear_form.description.data,
-                        purchase_date=create_gear_form.purchase_date.data)
+        if action == 'add':
+            new_gear = Gear(name=create_gear_form.name.data,
+                            description=create_gear_form.description.data,
+                            purchase_date=create_gear_form.purchase_date.data)
 
-        try:
-            db.session.add(new_gear)
-            db.session.commit()
-        except exc.IntegrityError:
-            db.session.rollback()
-            flash('A gear with the same name already exists', 'alert-danger')
+            try:
+                db.session.add(new_gear)
+                db.session.commit()
+                action = None
+            except exc.IntegrityError:
+                db.session.rollback()
+                flash('A gear with the same name already exists', 'alert-danger')
+        elif action == 'edit':
+            edit_gear = Gear.query.get(id)
+            edit_gear.name = create_gear_form.name.data
+            edit_gear.description = create_gear_form.description.data
+            edit_gear.purchase_date = create_gear_form.purchase_date.data
+            try:
+                db.session.commit()
+                action = None
+            except exc.IntegrityError:
+                db.session.rollback()
+                flash('A sport with the same name already exists', 'alert-danger')
+
+    if action == 'add':
+        create_gear_form.name.data = ''
+        create_gear_form.description.data = ''
+        create_gear_form.purchase_date.data = ''
+    elif action == 'edit':
+        gear = Gear.query.get(id)
+        create_gear_form.name.data = gear.name
+        create_gear_form.description.data = gear.description
+        create_gear_form.purchase_date.data = gear.purchase_date
 
     gears_list = Gear.query.all()
     return render_template('gears.html',
                            gears_list=gears_list,
                            page_gears_active="active",
-                           create_gear_form=create_gear_form)
+                           create_gear_form=create_gear_form,
+                           action=action)
 
 
 @app.route('/<cat>/<int:id>/delete', methods=['GET', 'POST'])

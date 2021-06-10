@@ -7,31 +7,48 @@
     {% if gears_list|length == 0 %}
         <p>Sorry, there is no gears to display yet !</p>
     {% endif %}
+    <div class="shadow-sm p-3 mb-5 bg-body rounded">
     <ul class="list-group list-group-flush">
         {% for gear in gears_list %}
             <li class="list-group-item d-flex justify-content-between align-items-start">
                 <div class="ms-2 me-auto">
-                    <div class="fw-bold">{{ gear.name }}</div>
-                        {{ gear.description }}
+                    <div class="fw-bold">{{ gear.name }}
+                        <span class="badge bg-primary rounded-pill">{{ gear.purchase_date }}</span>
+                    </div>
+                    {{ gear.description }}
                 </div>
-                <span class="badge bg-primary rounded-pill">{{ gear.purchase_date }}</span>
+
+
+
+                <div class="d-inline">
+                  <a href="{{ url_for('gears', action="edit",id=gear.id) }}" ><button type="button" class="btn btn-outline-info">Edit</button></a>
+                </div>
+                <div class="d-inline">
+                  <a href="{{ url_for('delete', cat="gears",id=gear.id) }}" ><button type="button" class="btn btn-outline-info">Delete</button></a>
+                </div>
             </li>
         {%  endfor %}
     </ul>
+    </div>
 
-    <hr>
+    {% if action is none %}
+        <a href="{{ url_for('gears', action="add",id=0) }}" ><button type="button" class="btn btn-primary">Add</button></a>
+    {% endif %}
 
-    <H1 class="display-6">Add an equipment :</H1>
-
-    <form action="" method="post" class="form" role="form">
+    {% if action is not none %}
+    <H1 class="display-6">{{ action | capitalize }} an equipment :</H1>
+    <div class="shadow-sm p-3 mb-5 bg-body rounded">
+        <form action="" method="post" class="form" role="form">
             {{ create_gear_form.csrf_token() }}
-        <d1>
-            {{ wtf.form_field(create_gear_form.name, class='form-control', placeholder='Model, name, ...') }}
-            {{ wtf.form_field(create_gear_form.description, class='form-control', placeholder='A brief description ...') }}
-            {{ wtf.form_field(create_gear_form.purchase_date, class='form-control') }}
-        </d1>
-        <p><input type=submit class='btn btn-primary btn-sm btn-block'>
-    </form>
+            <d1>
+                {{ wtf.form_field(create_gear_form.name, class='form-control', placeholder='Model, name, ...') }}
+                {{ wtf.form_field(create_gear_form.description, class='form-control', placeholder='A brief description ...') }}
+                {{ wtf.form_field(create_gear_form.purchase_date, class='form-control') }}
+            </d1>
+            <p><input type=submit class='btn btn-primary btn-sm btn-block'>
+        </form>
+    </div>
+    {% endif %}
 
 
 {% endblock %}
