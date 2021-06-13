@@ -1,0 +1,55 @@
+{%  extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block content %}
+
+    <H1 class="display-6">Workouts :</H1>
+
+    {% if workouts_list|length == 0 %}
+        <p>Sorry, there is no workouts to display yet !</p>
+    {% endif %}
+    <div class="shadow-sm p-3 mb-5 bg-body rounded">
+    <ul class="list-group list-group-flush">
+        {% for workout in workouts_list %}
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div class="ms-2 me-auto">
+                    <div class="fw-bold">{{ gear.name }}
+                        <span class="badge bg-primary rounded-pill">{{ gear.purchase_date }}</span>
+                    </div>
+                    {{ gear.description }}
+                </div>
+
+
+
+                <div class="d-inline">
+                  <a href="{{ url_for('gears', action="edit",id=gear.id) }}" ><button type="button" class="btn btn-outline-info">Edit</button></a>
+                </div>
+                <div class="d-inline">
+                  <a href="{{ url_for('delete', cat="gears",id=gear.id) }}" ><button type="button" class="btn btn-outline-info">Delete</button></a>
+                </div>
+            </li>
+        {%  endfor %}
+    </ul>
+    </div>
+
+    {% if action is none %}
+        <a href="{{ url_for('workouts', action="add",id=0) }}" ><button type="button" class="btn btn-primary">Add</button></a>
+    {% endif %}
+
+    {% if action is not none %}
+    <H1 class="display-6">{{ action | capitalize }} an equipment :</H1>
+    <div class="shadow-sm p-3 mb-5 bg-body rounded">
+        <form action="" method="post" class="form" role="form">
+            {{ create_workout_form.csrf_token() }}
+            <d1>
+                {{ wtf.form_field(create_workout_form.workout_date, class='form-control') }}
+                {{ wtf.form_field(create_workout_form.distance, class='form-control') }}
+                {{ wtf.form_field(create_workout_form.avg_pace, class='form-control') }}
+                {{ wtf.form_field(create_workout_form.avg_fc, class='form-control') }}
+            </d1>
+            <p><input type=submit class='btn btn-primary btn-sm btn-block'>
+        </form>
+    </div>
+    {% endif %}
+
+
+{% endblock %}
