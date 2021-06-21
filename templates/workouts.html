@@ -36,15 +36,21 @@
     {% endif %}
 
     {% if action is not none %}
-    <H1 class="display-6">{{ action | capitalize }} an equipment :</H1>
+    <H1 class="display-6">{{ action | capitalize }} a workout :</H1>
     <div class="shadow-sm p-3 mb-5 bg-body rounded">
         <form action="" method="post" class="form" role="form">
             {{ create_workout_form.csrf_token() }}
             <d1>
+                {{ wtf.form_field(create_workout_form.sport, class='form-select') }}
                 {{ wtf.form_field(create_workout_form.workout_date, class='form-control') }}
                 {{ wtf.form_field(create_workout_form.distance, class='form-control') }}
                 {{ wtf.form_field(create_workout_form.avg_pace, class='form-control') }}
+                <script type="text/javascript">
+                    $(".form_datetime").datetimepicker({format: 'ii:ss'});
+                </script>
                 {{ wtf.form_field(create_workout_form.avg_fc, class='form-control') }}
+                {{ wtf.form_field(create_workout_form.gear  , class='form-select') }}
+
             </d1>
             <p><input type=submit class='btn btn-primary btn-sm btn-block'>
         </form>

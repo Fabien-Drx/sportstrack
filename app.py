@@ -2,11 +2,12 @@ from flask import Flask, render_template, request, url_for, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, DateField, FloatField, IntegerField
+from wtforms import StringField, SubmitField, DateField, FloatField, IntegerField, SelectField
 from wtforms.fields.html5 import DateField as html5DateField, TimeField as html5TimeField
 from wtforms.validators import DataRequired
 from flask_bootstrap import Bootstrap
 from datetime import datetime
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gearsports.db'
@@ -62,10 +63,12 @@ class GearForm(FlaskForm):
 
 
 class WorkoutForm(FlaskForm):
+    sport = QuerySelectField(label='Sport', query_factory=lambda: Sport.query.all(), get_label='sport',validators=[DataRequired()])
     workout_date = html5DateField(label='Workout Date', validators=[DataRequired()])
     distance = FloatField(label='Distance', validators=[DataRequired()])
-    avg_pace = html5TimeField(label='Average Pace', format='%m:%s', validators=[DataRequired()])
+    avg_pace = html5TimeField(label='Average Pace', format='%M:%S', validators=[DataRequired()])
     avg_fc = IntegerField(label='Average FC', validators=[DataRequired()])
+    gear = QuerySelectField(label='Gear', query_factory=lambda: Gear.query.all(), get_label='name',validators=[DataRequired()])
     submit = SubmitField('Add Workout')
 
 
@@ -185,36 +188,31 @@ def workouts(action=None, id=-1):
 
     create_workout_form = WorkoutForm()
 
+    if request.method == 'POST' and create_workout_form.validate():
+        if action == 'add':
+            new_workout = Workout(sport_id=create_workout_form.sport.data,
+                                workout_date=create_workout_form.workout_date.data,
+                                distance=create_workout_form.distance.data,
+                                avg_pace=create_workout_form.avg_pace.data,
+                                avg_fc=create_workout_form.avg_fc.data
+                            )
+            # TODO : Add new track but we have to retrieve the workout_id from the insert
+            # TODO : and change the field type for avg_pace to time and not float
+
+            try:
+                db.session.add(new_workout)
+                db.session.commit()
+                action = None
+            except exc.IntegrityError:
+                db.session.rollback()
+                flash('A workout with the same name already exists', 'alert-danger')
+
+
     return render_template('workouts.html',
                            workouts_list=[],
                            page_workouts_active="active",
                            create_workout_form=create_workout_form,
                            action=action)
-
-
-#  to delete :
-#@app.route('/<cat>/<int:id>/edit', methods=['GET', 'POST'])
-#def edit(cat, id):
-#    if cat == 'sports':
-#        obj_to_upd = Sport.query.get(id)
-#        form = SportForm()
-#        form.sport.data = obj_to_upd.sport
-#    elif cat == 'gears':
-#        obj_to_upd = Gear.query.get(id)
-#        form = GearForm(obj_to_upd)
-#    elif cat == 'workouts':
-#        pass
-#    else:
-#        pass
-#
-#    if request.method == 'POST' and form.validate():
-#        obj_to_upd.sport = form.sport.data
-#        db.session.commit()
-#        return redirect(url_for(cat))
-#
-#
-#    return render_template('edit.html', form=form)
-
 
 
 if __name__ == '__main__':
