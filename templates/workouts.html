@@ -12,19 +12,19 @@
         {% for workout in workouts_list %}
             <li class="list-group-item d-flex justify-content-between align-items-start">
                 <div class="ms-2 me-auto">
-                    <div class="fw-bold">{{ gear.name }}
-                        <span class="badge bg-primary rounded-pill">{{ gear.purchase_date }}</span>
+                    <div class="fw-bold">{{ workout.sport.sport }}
+                        <span class="badge bg-primary rounded-pill">{{ workout.workout_date }}</span>
                     </div>
-                    {{ gear.description }}
+                    Distance : {{ workout.distance }} and Average FC : {{ workout.avg_fc }}
                 </div>
 
 
 
                 <div class="d-inline">
-                  <a href="{{ url_for('gears', action="edit",id=gear.id) }}" ><button type="button" class="btn btn-outline-info">Edit</button></a>
+                  <a href="{{ url_for('workouts', action="edit",id=workout.id) }}" ><button type="button" class="btn btn-outline-info">Edit</button></a>
                 </div>
                 <div class="d-inline">
-                  <a href="{{ url_for('delete', cat="gears",id=gear.id) }}" ><button type="button" class="btn btn-outline-info">Delete</button></a>
+                  <a href="{{ url_for('delete', cat="workouts",id=workout.id) }}" ><button type="button" class="btn btn-outline-info">Delete</button></a>
                 </div>
             </li>
         {%  endfor %}

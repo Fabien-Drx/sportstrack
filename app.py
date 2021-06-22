@@ -33,7 +33,7 @@ class Workout(db.Model):
     sport_id = db.Column(db.Integer, db.ForeignKey('sport.id'))
     workout_date = db.Column(db.Date, default=datetime.now())
     distance = db.Column(db.Float(), default=0)
-    avg_pace = db.Column(db.Float(), default=0)
+    avg_pace = db.Column(db.Time(), default=0)
     avg_fc = db.Column(db.Float(), default=0)
     tracks = db.relationship('Track', backref='workout_track', lazy='dynamic')
 
@@ -190,17 +190,21 @@ def workouts(action=None, id=-1):
 
     if request.method == 'POST' and create_workout_form.validate():
         if action == 'add':
-            new_workout = Workout(sport_id=create_workout_form.sport.data,
+
+            try:
+                new_workout = Workout(sport_id=create_workout_form.sport.data.id,
                                 workout_date=create_workout_form.workout_date.data,
                                 distance=create_workout_form.distance.data,
                                 avg_pace=create_workout_form.avg_pace.data,
                                 avg_fc=create_workout_form.avg_fc.data
                             )
-            # TODO : Add new track but we have to retrieve the workout_id from the insert
-            # TODO : and change the field type for avg_pace to time and not float
-
-            try:
                 db.session.add(new_workout)
+                # Flush to get the new workout id
+                db.session.flush()
+
+                new_track = Track(workout_id=new_workout.id, gear_id=create_workout_form.gear.data.id)
+                db.session.add(new_track)
+
                 db.session.commit()
                 action = None
             except exc.IntegrityError:
@@ -208,8 +212,10 @@ def workouts(action=None, id=-1):
                 flash('A workout with the same name already exists', 'alert-danger')
 
 
+    workout_list = Workout.query.join(Sport).all()
+
     return render_template('workouts.html',
-                           workouts_list=[],
+                           workouts_list=workout_list,
                            page_workouts_active="active",
                            create_workout_form=create_workout_form,
                            action=action)
